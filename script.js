@@ -27,7 +27,7 @@ const loader = new GLTFLoader();
 
 // Husk at erstatte "din_avatar.glb" med det præcise navn på din fil!
 loader.load(
-    'din_avatar.glb', // Stien til din GLB-fil
+    'model.glb', // Stien til din GLB-fil
     function (gltf) {
         // Avataren er nu indlæst. Vi tilføjer den til scenen.
         const avatar = gltf.scene;
