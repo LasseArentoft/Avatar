@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+// --- NEW: Animation Variables ---
+let mixer; // Declare mixer outside so it's accessible in animate()
+const clock = new THREE.Clock(); // For tracking time for animations
+// --- END NEW ---
+
 // 1. Opsætning af scenen
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -10,7 +15,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement); // Tilføj 3D-visningen til HTML-siden
 
 // Juster baggrundsfarven på scenen (optional)
-scene.background = new THREE.Color(0x87ceeb); // En lys grå farve
+scene.background = new THREE.Color(0x87ceeb); // En lys blå farve (Light Sky Blue)
 
 // 2. Tilføj lys til scenen
 // Ambient light giver en blød, jævn belysning fra alle retninger
@@ -43,6 +48,27 @@ loader.load(
         camera.position.set(0, 1.5, 3); // Position: x, y (højde), z (dybde)
         camera.lookAt(avatar.position); // Få kameraet til at kigge på avataren
 
+        // --- NEW: Animation Setup ---
+        // Check if the model has animations
+        if (gltf.animations && gltf.animations.length > 0) {
+            // Initialize the mixer with the avatar object
+            mixer = new THREE.AnimationMixer(avatar);
+
+            // Get the first animation clip found in the model
+            const clip = gltf.animations[0];
+
+            // Create an AnimationAction from the clip
+            const action = mixer.clipAction(clip);
+
+            // Play the animation
+            action.play();
+
+            console.log('Playing animation:', clip.name || 'Unnamed clip');
+        } else {
+            console.log('No animations found in the model. Cannot play pre-baked animations.');
+        }
+        // --- END NEW ---
+
         // Du kan gemme en reference til avataren, hvis du vil manipulere den senere
         // window.myAvatar = avatar; // Gør den tilgængelig globalt for debugging
     },
@@ -60,10 +86,20 @@ loader.load(
 function animate() {
     requestAnimationFrame(animate); // Kalder funktionen igen ved næste frame
 
+    // --- NEW: Update the animation mixer ---
+    // Get the time elapsed since the last frame
+    const delta = clock.getDelta();
+
+    // Update the animation mixer if it exists
+    if (mixer) {
+        mixer.update(delta);
+    }
+    // --- END NEW ---
+
     // Her kan du tilføje animationer eller interaktioner
     // f.eks. rotere avataren:
     // if (window.myAvatar) {
-    //     window.myAvatar.rotation.y += 0.005;
+    //     window.myAvatar.rotation.y += 0.005;
     // }
 
     renderer.render(scene, camera); // Tegn scenen
