@@ -10,7 +10,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement); // Tilføj 3D-visningen til HTML-siden
 
 // Juster baggrundsfarven på scenen (optional)
-scene.background = new THREE.Color(0xa0a0a0); // En lys grå farve
+scene.background = new THREE.Color(0b5394); // En lys grå farve
 
 // 2. Tilføj lys til scenen
 // Ambient light giver en blød, jævn belysning fra alle retninger
