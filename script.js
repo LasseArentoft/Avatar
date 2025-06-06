@@ -1,18 +1,18 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'; // NEW: Import OrbitControls
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 let mixer;
 const clock = new THREE.Clock();
-let faceMesh = null; // Declare faceMesh globally
-let headMeshBlendShapeNames = null; // Store the blend shape dictionary globally
-let controls; // NEW: Declare controls globally
+let faceMesh = null;
+let headMeshBlendShapeNames = null;
+let controls;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth / window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 scene.background = new THREE.Color(0x87ceeb);
@@ -26,6 +26,7 @@ scene.add(directionalLight);
 
 const loader = new GLTFLoader();
 
+// NEW: Updated model filename to 'lasseavatarv2.glb'
 loader.load(
     'lasseavatarv2.glb',
     function (gltf) {
@@ -35,22 +36,21 @@ loader.load(
         camera.position.set(0, 1.5, 3);
         camera.lookAt(avatar.position);
 
-        // NEW: Initialize OrbitControls after camera and renderer
         controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true; // For smoother controls
+        controls.enableDamping = true;
         controls.dampingFactor = 0.25;
         controls.screenSpacePanning = false;
-        controls.minDistance = 0.5; // Minimum zoom distance
-        controls.maxDistance = 10; // Maximum zoom distance
-        controls.target.set(0, 1.5, 0); // Set controls target to the avatar's center
-        controls.update(); // Update controls after setting target
+        controls.minDistance = 0.5;
+        controls.maxDistance = 10;
+        controls.target.set(0, 1.5, 0);
+        controls.update();
 
         if (gltf.animations && gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(avatar);
             const clip = gltf.animations[0];
             const action = mixer.clipAction(clip);
-            action.play();
-            console.log('Playing animation:', clip.name || 'Unnamed clip');
+            // action.play(); // COMMENTED OUT FOR TESTING BLEND SHAPES
+            console.log('Animation clip found:', clip.name || 'Unnamed clip', ' - NOT PLAYING FOR BLEND SHAPE TEST');
         } else {
             console.log('No animations found in the model. Cannot play pre-baked animations.');
         }
@@ -105,11 +105,11 @@ function animate() {
     requestAnimationFrame(animate);
 
     const delta = clock.getDelta();
-    if (mixer) {
-        mixer.update(delta);
-    }
+    // if (mixer) { // Mixer update might conflict with blend shapes, so temporarily commenting out
+    //     mixer.update(delta);
+    // }
     
-    if (controls) { // NEW: Update controls in the animate loop
+    if (controls) {
         controls.update();
     }
 
