@@ -69,8 +69,8 @@ loader.load(
             }
         });
 
-        console.log('Debugging: faceMesh variable is', faceMesh);
-        console.log('Debugging: headMeshBlendShapeNames variable is', headMeshBlendShapeNames);
+        console.log('Debugging: faceMesh variable is', faceMesh); //
+        console.log('Debugging: headMeshBlendShapeNames variable is', headMeshBlendShapeNames); //
 
         if (!faceMesh) {
             console.log('Head_Mesh with blend shapes not found. Lip-sync might be difficult.');
@@ -78,11 +78,11 @@ loader.load(
             if (headMeshBlendShapeNames['jawOpen'] !== undefined) {
                 const jawOpenIndex = headMeshBlendShapeNames['jawOpen'];
                 faceMesh.morphTargetInfluences[jawOpenIndex] = 0.5;
-                console.log('Direct test: Attempted to open jawOpen blend shape to 0.5');
+                console.log('Direct test: Attempted to open jawOpen blend shape to 0.5'); //
 
                 setTimeout(() => {
                     faceMesh.morphTargetInfluences[jawOpenIndex] = 0;
-                    console.log('Direct test: Closed jawOpen blend shape.');
+                    console.log('Direct test: Closed jawOpen blend shape.'); //
                 }, 3000);
             } else {
                 console.warn("Direct test: 'jawOpen' blend shape not found in dictionary.");
@@ -183,19 +183,19 @@ function speak(text) {
     currentUtterance = utterance;
 
     utterance.onstart = () => {
-        console.log('Speech started');
+        console.log('Speech started'); //
         isSpeaking = true;
         activateBlendShape(lipSyncVisemeMap['defaultOpen'], 0.5);
     };
 
     utterance.onend = () => {
-        console.log('Speech ended');
+        console.log('Speech ended'); //
         isSpeaking = false;
         resetBlendShapes();
     };
 
     utterance.onerror = (event) => {
-        console.error('Speech synthesis error:', event.error);
+        console.error('Speech synthesis error:', event.error); //
         isSpeaking = false;
         resetBlendShapes();
     };
