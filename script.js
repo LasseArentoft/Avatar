@@ -57,13 +57,33 @@ loader.load(
                 }
             }
         });
+
+        // --- NEW: Debugging console logs for faceMesh and headMeshBlendShapeNames ---
+        console.log('Debugging: faceMesh variable is', faceMesh);
+        console.log('Debugging: headMeshBlendShapeNames variable is', headMeshBlendShapeNames);
+        // --- END NEW ---
+
         if (!faceMesh) {
             console.log('Head_Mesh with blend shapes not found. Lip-sync might be difficult.');
-        }
-        // --- End Store reference ---
+        } else {
+            // --- NEW: Direct Test of Blend Shape Application ---
+            // Let's try to open the mouth immediately after loading to see if it works
+            if (headMeshBlendShapeNames['jawOpen'] !== undefined) {
+                const jawOpenIndex = headMeshBlendShapeNames['jawOpen'];
+                faceMesh.morphTargetInfluences[jawOpenIndex] = 0.5; // Open mouth halfway
+                console.log('Direct test: Attempted to open jawOpen blend shape to 0.5');
 
-        // Du kan gemme en reference til avataren, hvis du vil manipulere den senere
-        // window.myAvatar = avatar; // Gør den tilgængelig globalt for debugging
+                // After a few seconds, close it again
+                setTimeout(() => {
+                    faceMesh.morphTargetInfluences[jawOpenIndex] = 0;
+                    console.log('Direct test: Closed jawOpen blend shape.');
+                }, 3000); // Keep open for 3 seconds
+            } else {
+                console.warn("Direct test: 'jawOpen' blend shape not found in dictionary.");
+            }
+            // --- END NEW ---
+        }
+
     },
     function (xhr) {
         if (xhr.total > 0) {
@@ -96,34 +116,26 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// --- NEW: Text-to-Speech (TTS) and Lip-Sync Functionality ---
-
-// A simple map of common phoneme-like sounds to your visemes
-// This is a simplified mapping as browser TTS doesn't give precise phonemes.
-// We'll primarily use mouthOpen for basic speech and maybe one or two other shapes.
 const lipSyncVisemeMap = {
-    'mouthOpen': 'jawOpen', // Good for general open mouth sounds like A, O, E
-    'mouthClose': 'mouthClose', // For M, B, P sounds
-    'mouthFunnel': 'mouthFunnel', // For U, O sounds
-    'mouthPucker': 'mouthPucker', // For U, W sounds
-    'viseme_FF': 'viseme_FF', // For F, V sounds
-    'viseme_TH': 'viseme_TH', // For Th sounds
-    'viseme_SS': 'viseme_SS', // For S, Z sounds
-    'viseme_CH': 'viseme_CH', // For Ch, J sounds
-    'viseme_RR': 'viseme_RR', // For R sounds
-    'viseme_sil': 'viseme_sil', // For silence
-    'viseme_PP': 'viseme_PP', // For P sounds
-    'viseme_DD': 'viseme_DD', // For D, N sounds
-    'viseme_kk': 'viseme_kk', // For K, G sounds
-    // Generic open mouth fallback if specific viseme not found
+    'mouthOpen': 'jawOpen',
+    'mouthClose': 'mouthClose',
+    'mouthFunnel': 'mouthFunnel',
+    'mouthPucker': 'mouthPucker',
+    'viseme_FF': 'viseme_FF',
+    'viseme_TH': 'viseme_TH',
+    'viseme_SS': 'viseme_SS',
+    'viseme_CH': 'viseme_CH',
+    'viseme_RR': 'viseme_RR',
+    'viseme_sil': 'viseme_sil',
+    'viseme_PP': 'viseme_PP',
+    'viseme_DD': 'viseme_DD',
+    'viseme_kk': 'viseme_kk',
     'defaultOpen': 'jawOpen',
-    // Generic closed mouth fallback
     'defaultClose': 'mouthClose'
 };
 
-// Function to reset all blend shapes to 0 (neutral pose)
 function resetBlendShapes() {
-    if (faceMesh && faceMesh.morphTargetInfluences) {
+    if (faceMesh && faceMesh.morphTargetInfluences && headMeshBlendShapeNames) {
         for (const key in headMeshBlendShapeNames) {
             const index = headMeshBlendShapeNames[key];
             if (faceMesh.morphTargetInfluences[index] !== undefined) {
@@ -133,21 +145,19 @@ function resetBlendShapes() {
     }
 }
 
-// Function to activate a specific blend shape
 function activateBlendShape(name, influence = 1.0) {
     if (faceMesh && headMeshBlendShapeNames) {
         const index = headMeshBlendShapeNames[name];
         if (index !== undefined && faceMesh.morphTargetInfluences[index] !== undefined) {
             faceMesh.morphTargetInfluences[index] = influence;
         } else {
-            // console.warn(`Blend shape '${name}' not found.`);
+            // console.warn(`Blend shape '${name}' not found.`); // Keep this commented for now to reduce console spam
         }
     }
 }
 
-// Global variable to keep track of speaking state
 let isSpeaking = false;
-let currentUtterance = null; // To keep track of the current speech synthesis
+let currentUtterance = null;
 
 function speak(text) {
     if (!faceMesh || !headMeshBlendShapeNames) {
@@ -156,33 +166,26 @@ function speak(text) {
     }
 
     if (isSpeaking) {
-        // Stop current speech if any
         if (currentUtterance) {
             speechSynthesis.cancel();
         }
         isSpeaking = false;
-        resetBlendShapes(); // Reset face immediately
+        resetBlendShapes();
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
     currentUtterance = utterance;
 
-    // Optional: Choose a voice
-    // You can get a list of voices via speechSynthesis.getVoices()
-    // For Danish, you might look for a voice like "Karen" or "Sara"
-    // utterance.voice = speechSynthesis.getVoices().find(voice => voice.lang === 'da-DK' && voice.name === 'Sara');
-
     utterance.onstart = () => {
         console.log('Speech started');
         isSpeaking = true;
-        // Apply a general "mouth open" for the duration of speech
-        activateBlendShape(lipSyncVisemeMap['defaultOpen'], 0.5); // Slightly open mouth
+        activateBlendShape(lipSyncVisemeMap['defaultOpen'], 0.5);
     };
 
     utterance.onend = () => {
         console.log('Speech ended');
         isSpeaking = false;
-        resetBlendShapes(); // Reset face to neutral
+        resetBlendShapes();
     };
 
     utterance.onerror = (event) => {
@@ -191,48 +194,36 @@ function speak(text) {
         resetBlendShapes();
     };
 
-    // The 'onboundary' event can give us some basic timing for words/sentences.
-    // We'll use this to briefly "open" the mouth for each word.
     utterance.onboundary = (event) => {
         if (event.name === 'word' || event.name === 'sentence') {
-            // For a basic mouth animation without precise phoneme data
-            // We'll briefly open and close the mouth
-            activateBlendShape(lipSyncVisemeMap['defaultOpen'], 0.7); // Open more for a word
+            activateBlendShape(lipSyncVisemeMap['defaultOpen'], 0.7);
             setTimeout(() => {
-                // If still speaking and not at the end of the word, return to slight open
                 if (isSpeaking) {
                     activateBlendShape(lipSyncVisemeMap['defaultOpen'], 0.5);
                 }
-            }, 100); // Keep mouth open for 100ms for each word/sentence boundary
+            }, 100);
         }
     };
 
     speechSynthesis.speak(utterance);
 }
 
-// --- Example Usage (add a button or call this function) ---
-// For testing, let's add a simple button to trigger speech
-// You'll need to add a button to your index.html: <button id="speakButton">Speak</button>
-
 document.addEventListener('DOMContentLoaded', () => {
     const speakButton = document.createElement('button');
     speakButton.id = 'speakButton';
-    speakButton.textContent = 'Få avatar til at tale'; // "Make avatar speak" in Danish
+    speakButton.textContent = 'Få avatar til at tale';
     speakButton.style.position = 'absolute';
     speakButton.style.top = '10px';
     speakButton.style.left = '10px';
-    speakButton.style.zIndex = '100'; // Ensure it's above the canvas
+    speakButton.style.zIndex = '100';
     document.body.appendChild(speakButton);
 
     speakButton.addEventListener('click', () => {
-        // You can change this text to whatever you want the avatar to say
         const textToSpeak = "Hej med dig. Jeg er din nye digitale assistent. Hvordan kan jeg hjælpe dig i dag?";
         speak(textToSpeak);
     });
 
-    // To ensure voices are loaded, sometimes getVoices needs a slight delay or an event listener
     speechSynthesis.onvoiceschanged = () => {
         console.log("Speech voices changed/loaded.");
-        // You can now access speechSynthesis.getVoices()
     };
 });
