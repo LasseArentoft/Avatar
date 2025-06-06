@@ -28,7 +28,7 @@ const loader = new GLTFLoader();
 
 // NEW: Updated model filename to 'lasseavatarv2.glb'
 loader.load(
-    'lasseavatarv2.glb',
+    'Lasseavatarv2.glb',
     function (gltf) {
         const avatar = gltf.scene;
         scene.add(avatar);
