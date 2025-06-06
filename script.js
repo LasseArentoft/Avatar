@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'; // NEW: Import OrbitControls
 
 let mixer;
 const clock = new THREE.Clock();
 let faceMesh = null; // Declare faceMesh globally
 let headMeshBlendShapeNames = null; // Store the blend shape dictionary globally
+let controls; // NEW: Declare controls globally
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -33,6 +35,16 @@ loader.load(
         camera.position.set(0, 1.5, 3);
         camera.lookAt(avatar.position);
 
+        // NEW: Initialize OrbitControls after camera and renderer
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // For smoother controls
+        controls.dampingFactor = 0.25;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 0.5; // Minimum zoom distance
+        controls.maxDistance = 10; // Maximum zoom distance
+        controls.target.set(0, 1.5, 0); // Set controls target to the avatar's center
+        controls.update(); // Update controls after setting target
+
         if (gltf.animations && gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(avatar);
             const clip = gltf.animations[0];
@@ -43,14 +55,13 @@ loader.load(
             console.log('No animations found in the model. Cannot play pre-baked animations.');
         }
 
-        // --- Store reference to Head_Mesh and its blend shapes ---
         avatar.traverse(function (child) {
             if (child.isMesh && child.morphTargetInfluences && child.morphTargetInfluences.length > 0) {
                 console.log('Found mesh with blend shapes (morph targets)!');
                 console.log('Mesh Name:', child.name);
                 console.log('Blend Shape Names:', child.morphTargetDictionary);
 
-                if (child.name === 'Head_Mesh') { // Assuming 'Head_Mesh' is the one with facial blend shapes
+                if (child.name === 'Head_Mesh') {
                     faceMesh = child;
                     headMeshBlendShapeNames = child.morphTargetDictionary;
                     console.log('Reference to Head_Mesh stored for lip-sync.');
@@ -58,32 +69,25 @@ loader.load(
             }
         });
 
-        // --- NEW: Debugging console logs for faceMesh and headMeshBlendShapeNames ---
         console.log('Debugging: faceMesh variable is', faceMesh);
         console.log('Debugging: headMeshBlendShapeNames variable is', headMeshBlendShapeNames);
-        // --- END NEW ---
 
         if (!faceMesh) {
             console.log('Head_Mesh with blend shapes not found. Lip-sync might be difficult.');
         } else {
-            // --- NEW: Direct Test of Blend Shape Application ---
-            // Let's try to open the mouth immediately after loading to see if it works
             if (headMeshBlendShapeNames['jawOpen'] !== undefined) {
                 const jawOpenIndex = headMeshBlendShapeNames['jawOpen'];
-                faceMesh.morphTargetInfluences[jawOpenIndex] = 0.5; // Open mouth halfway
+                faceMesh.morphTargetInfluences[jawOpenIndex] = 0.5;
                 console.log('Direct test: Attempted to open jawOpen blend shape to 0.5');
 
-                // After a few seconds, close it again
                 setTimeout(() => {
                     faceMesh.morphTargetInfluences[jawOpenIndex] = 0;
                     console.log('Direct test: Closed jawOpen blend shape.');
-                }, 3000); // Keep open for 3 seconds
+                }, 3000);
             } else {
                 console.warn("Direct test: 'jawOpen' blend shape not found in dictionary.");
             }
-            // --- END NEW ---
         }
-
     },
     function (xhr) {
         if (xhr.total > 0) {
@@ -103,6 +107,10 @@ function animate() {
     const delta = clock.getDelta();
     if (mixer) {
         mixer.update(delta);
+    }
+    
+    if (controls) { // NEW: Update controls in the animate loop
+        controls.update();
     }
 
     renderer.render(scene, camera);
@@ -150,8 +158,6 @@ function activateBlendShape(name, influence = 1.0) {
         const index = headMeshBlendShapeNames[name];
         if (index !== undefined && faceMesh.morphTargetInfluences[index] !== undefined) {
             faceMesh.morphTargetInfluences[index] = influence;
-        } else {
-            // console.warn(`Blend shape '${name}' not found.`); // Keep this commented for now to reduce console spam
         }
     }
 }
