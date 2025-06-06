@@ -23,7 +23,7 @@ scene.add(directionalLight);
 const loader = new GLTFLoader();
 
 loader.load(
-    'lasseavatarv2.glb',
+    'model.glb',
     function (gltf) {
         const avatar = gltf.scene;
         scene.add(avatar);
@@ -31,6 +31,7 @@ loader.load(
         camera.position.set(0, 1.5, 3);
         camera.lookAt(avatar.position);
 
+        // --- Animation Setup (unchanged, will play avaturn_animation) ---
         if (gltf.animations && gltf.animations.length > 0) {
             mixer = new THREE.AnimationMixer(avatar);
             const clip = gltf.animations[0];
@@ -39,22 +40,39 @@ loader.load(
             console.log('Playing animation:', clip.name || 'Unnamed clip');
         } else {
             console.log('No animations found in the model. Cannot play pre-baked animations.');
-
-            // --- NEW: Check for Blend Shapes ---
-            avatar.traverse(function (child) {
-                if (child.isMesh && child.morphTargetInfluences && child.morphTargetInfluences.length > 0) {
-                    console.log('Found mesh with blend shapes (morph targets)!');
-                    console.log('Mesh Name:', child.name);
-                    console.log('Blend Shape Names:', child.morphTargetDictionary);
-                    // You might want to store a reference to this mesh if it's the face
-                    // window.faceMesh = child; // Example: Make it globally accessible for testing
-                }
-            });
-            // --- END NEW ---
         }
+        // --- END Animation Setup ---
+
+        // --- NEW LOCATION FOR BLEND SHAPE CHECK ---
+        // This will now always run, regardless of whether a pre-baked animation was found.
+        let faceMesh = null; // Declare a variable to store the mesh with blend shapes
+
+        avatar.traverse(function (child) {
+            if (child.isMesh && child.morphTargetInfluences && child.morphTargetInfluences.length > 0) {
+                console.log('Found mesh with blend shapes (morph targets)!');
+                console.log('Mesh Name:', child.name);
+                console.log('Blend Shape Names:', child.morphTargetDictionary);
+
+                // Store a reference to this mesh if you want to manipulate it later for lip-sync
+                faceMesh = child;
+                // You can also expose it globally for testing: window.faceMesh = child;
+            }
+        });
+        if (!faceMesh) {
+            console.log('No mesh with blend shapes found on traversal. Lip-sync might be difficult.');
+        }
+        // --- END NEW LOCATION ---
+
+        // Du kan gemme en reference til avataren, hvis du vil manipulere den senere
+        // window.myAvatar = avatar; // Gør den tilgængelig globalt for debugging
     },
     function (xhr) {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        // Correcting potential Infinity% loaded issue - make sure xhr.total is not 0
+        if (xhr.total > 0) {
+            console.log((xhr.loaded / xhr.total * 100).toFixed(2) + '% loaded');
+        } else {
+            console.log('Model loading progress (total size unknown)');
+        }
     },
     function (error) {
         console.error('An error occurred loading the GLB model:', error);
