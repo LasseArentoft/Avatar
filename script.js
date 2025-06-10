@@ -1,14 +1,7 @@
-
-// TOP OF script.js
-// Local ES Module Imports using relative paths with CORRECT CASE-SENSITIVITY
 import * as THREE from './JS/Three/Build/three.module.js';
 import { GLTFLoader } from './JS/Three/examples/Jsm/Loaders/GLTFLoader.js';
-import { OrbitControls } from './JS/Three/examples/Jsm/Controls/OrbitControls.js';
-import * as BufferGeometryUtils from './JS/Three/examples/jsm/utils/BufferGeometryUtils.js'; // Import EVERYTHING as 'BufferGeometryUtils'
-
-// ... rest of your script.js code ...
-
-// ... rest of your script.js code ...
+import { OrbitControls } from './JS/Three/examples/Jsm/controls/OrbitControls.js';
+import { BufferGeometryUtils } from './JS/Three/examples/jsm/utils/BufferGeometryUtils.js'; // This line should be with curly braces for now.
 
 let mixer;
 const clock = new THREE.Clock();
