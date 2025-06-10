@@ -1,8 +1,9 @@
 // TOP OF script.js
 // Local ES Module Imports using relative paths with CORRECT CASE-SENSITIVITY
-import * as THREE from './JS/Three/Build/three.module.js'; 
-import { GLTFLoader } from './JS/Three/examples/Jsm/Loaders/GLTFLoader.js'; 
-import { OrbitControls } from './JS/Three/examples/Jsm/controls/OrbitControls.js'; 
+import * as THREE from './JS/Three/Build/three.module.js';
+import { GLTFLoader } from './JS/Three/examples/Jsm/Loaders/GLTFLoader.js';
+import { OrbitControls } from './JS/Three/examples/Jsm/controls/OrbitControls.js';
+import { BufferGeometryUtils } from './JS/Three/examples/jsm/utils/BufferGeometryUtils.js'; // NEW LINE ADDED HERE
 
 let mixer;
 const clock = new THREE.Clock();
