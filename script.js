@@ -4,7 +4,9 @@
 import * as THREE from './JS/Three/Build/three.module.js';
 import { GLTFLoader } from './JS/Three/examples/Jsm/Loaders/GLTFLoader.js';
 import { OrbitControls } from './JS/Three/examples/Jsm/controls/OrbitControls.js';
-import BufferGeometryUtils from './JS/Three/examples/jsm/utils/BufferGeometryUtils.js'; // Notice NO curly braces { } around BufferGeometryUtils
+import * as BufferGeometryUtils from './JS/Three/examples/jsm/utils/BufferGeometryUtils.js'; // Import EVERYTHING as 'BufferGeometryUtils'
+
+// ... rest of your script.js code ...
 
 // ... rest of your script.js code ...
 
