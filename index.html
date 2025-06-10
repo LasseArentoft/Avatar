@@ -1,23 +1,16 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Min 3D Avatar</title>
-    <style>
-        body { margin: 0; overflow: hidden; } /* Fjerner scrollbar og mellemrum */
-        canvas { display: block; } /* Sikrer at canvas fylder hele skærmen */
-    </style>
-</head>
+    <title>Lasse's Avatar</title>
+    <link rel="stylesheet" href="style.css">
+    </head>
 <body>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
-            }
-        }
-    </script>
+    <h1>Welcome to Lasse's Avatar</h1>
+    <p>This is where the magic happens!</p>
+
+    <section id="avatar-section" style="width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center;"></section>
     <script type="module" src="script.js"></script>
 </body>
 </html>
