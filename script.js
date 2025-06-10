@@ -355,7 +355,7 @@ function speak(text) {
                 applyViseme('TH'); // TH, T, D, N
             } else if (firstChar === 'r') { 
                 applyViseme('R'); // R (no specific viseme_RR, using jaw/mouth open)
-            } else if (firstChar.match(/[kg]/) || firstThreeChars === 'ng') { 
+            } else if (firstChar === 'k' || firstChar === 'g' || firstThreeChars === 'ng') { 
                 applyViseme('K'); // K, G, NG (no specific viseme_kk, using jaw/mouth open)
             }
             // Vowel sounds (fallback if no specific consonant match)
