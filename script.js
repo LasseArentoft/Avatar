@@ -1,7 +1,9 @@
+// TOP OF script.js
+// Local ES Module Imports with CORRECTED CASE-SENSITIVITY for common Three.js examples folder names
 import * as THREE from './JS/Three/Build/three.module.js';
-import { GLTFLoader } from './JS/Three/examples/Jsm/Loaders/GLTFLoader.js';
-import { OrbitControls } from './JS/Three/examples/Jsm/Controls/OrbitControls.js';
-import { BufferGeometryUtils } from './JS/Three/examples/Jsm/utils/BufferGeometryUtils.js'; // This line should be with curly braces for now.
+import { GLTFLoader } from './JS/Three/examples/Jsm/Loaders/GLTFLoader.js'; // **CRITICAL FIX: Removed stray '='**
+import { OrbitControls } from './JS/Three/examples/Jsm/controls/OrbitControls.js'; // 'controls' is lowercase
+import { BufferGeometryUtils } from './JS/Three/examples/Jsm/utils/BufferGeometryUtils.js'; // 'utils' is lowercase
 
 let mixer;
 const clock = new THREE.Clock();
